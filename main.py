@@ -1,80 +1,81 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-import pyperclip
-import sys
+import pyautogui as pyg
 import time
+import subprocess as sp
 import os
-import argparse
 
-
-def run(driver_path, name, files):
-
-    driver = webdriver.Chrome(executable_path=driver_path)
-    driver.maximize_window()
-    driver.get('https://web.whatsapp.com/')
-
-    search_box = WebDriverWait(driver, 500).until(EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"][@data-tab="3"]')))
-    time.sleep(1)
-
-    pyperclip.copy(name)
-    search_box.send_keys(Keys.CONTROL + "v")
-    time.sleep(1)
-
-    name_title = driver.find_element(By.XPATH, f'//span[@title="{name}"]')
-    name_title.click()
-    time.sleep(1)
-
-    input_xpath = '//div[@contenteditable="true"][@data-tab="10"]'
-    input_box = driver.find_element(By.XPATH, input_xpath)
-
-    pyperclip.copy("Sending...")
-    input_box.send_keys(Keys.CONTROL + "v")
-    input_box.send_keys(Keys.ENTER)
-    time.sleep(1)
-
-    # sending only 10 files
-    i = 1
-    for file in files[:2]:
-        attachment_box = driver.find_element(By.XPATH,'//div[@title="Attach"]')
-        attachment_box.click()
-        time.sleep(1)
-
-        image_box = driver.find_element(By.XPATH,'//input[@accept="image/*,video/mp4,video/3gpp,video/quicktime"]')
-        image_box.send_keys(file)
-        time.sleep(1)
-
-        caption_box = driver.find_element(By.XPATH, input_xpath)
+class spamImage:
         
-        caption = str(i) # Catption for each file
-        pyperclip.copy(caption) 
-        caption_box.send_keys(Keys.CONTROL + "v")
+        def __init__(self, groupName, imageDirectory, startText="u know who?", imageText=":O"):
+                self.groupName = groupName
+                self.imageDirectory = imageDirectory
+                self.startText = startText
+                self.imageText = imageText
+        
+        def hotkey(self,key):
+                pyg.keyDown('command')
+                if key == "paste":
+                        pyg.press('v')
+                elif key == "find":
+                        pyg.press('f')
+                pyg.keyUp('command')  
 
-        send_btn = driver.find_element(By.XPATH,'//span[@data-icon="send"]')
-        send_btn.click()
-        time.sleep(1)
-        i+=1
+        def imagepaste(self,filename):
+                
+                comnd = [
+                "osascript",
+                "-e",
+                'set the clipboard to (read (POSIX file "'
+                + filename +
+                '") as JPEG picture)',
+                ]
+                
+                sp.Popen(comnd)
+                
+                #paste and send
+                time.sleep(0.5)
+                self.hotkey("paste")
+                time.sleep(0.5)
+                pyg.typewrite(self.imageText)
+                pyg.press('enter')
+         
+        def start(self):
+                # open application
+                sp.Popen(["/usr/bin/open", "-W", "-a", "/Applications/Whatsapp.app"])                       
+
+                # check is application is opened
+                time.sleep(2)
+
+                #find group
+                self.hotkey("find")
+
+                #enter group name
+                pyg.typewrite(self.groupName)
+                pyg.press('enter')
+                print("found")
+                time.sleep(0.5)
+
+                #enter some text to group
+                pyg.typewrite(self.startText+"\n")
+
+                # iterate through every file in folder
+                directory = os.fsencode(self.imageDirectory)
+                
+                for file in os.listdir(directory):
+                        filename = os.fsencode(file)
+                        filex = str(os.path.join(directory, filename))
+                        myfile = filex[2:-1];
+                        if myfile.endswith(".jpg") or myfile.endswith(".jpeg"):
+                                self.imagepaste(myfile)
 
 
-if __name__ == '__main__':
-    
-    DRIVER_PATH = r'D:\Softwares\chromedriver_win32\chromedriver.exe'
-    FOLDER = r'C:\Users\apil0\OneDrive\Desktop\whatsapp_auto\test'
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-n","--name", type=str, required=True, help="WhatsApp Contact Name")
-    parser.add_argument("-p","--path", type=str, help="Folder Path", default=FOLDER)
-    parser.add_argument("-d","--driver", type=str, help="ChromeDriver Path", default=DRIVER_PATH)
-    opt = parser.parse_args()
+if __name__ == "__main__":
 
-    name = opt.name
-    path = opt.path
-    driver_path = opt.driver
-
-    files = []
-    for file in os.listdir(path):
-        files.append(path +'\\' + file)
-
-    run(driver_path, name, files)
+        # spamImage(GroupName, Directory with image file , StartText, Text with each image)
+        
+        directory = "/path to image folder/" # enter your directory path
+        groupName = "myGrp"
+        
+        mySpam = spamImage(groupName, directory, "u no who? sahaj", ":)")
+        
+        mySpam.start()
