@@ -5,8 +5,9 @@ import os
 
 class spamImage:
         
-        def __init__(self, groupName, startText="u know who?", imageText=":O"):
+        def __init__(self, groupName, imageDirectory, startText="u know who?", imageText=":O"):
                 self.groupName = groupName
+                self.imageDirectory = imageDirectory
                 self.startText = startText
                 self.imageText = imageText
         
@@ -57,7 +58,7 @@ class spamImage:
                 pyg.typewrite(self.startText+"\n")
 
                 # iterate through every file in folder
-                directory = os.fsencode("/Users/sahajsingh/Documents/drone/image/")
+                directory = os.fsencode(self.imageDirectory)
                 
                 for file in os.listdir(directory):
                         filename = os.fsencode(file)
@@ -70,8 +71,11 @@ class spamImage:
 
 if __name__ == "__main__":
 
-        # spamImage(GroupName, StartText, Text with each image)
+        # spamImage(GroupName, Directory with image file , StartText, Text with each image)
         
-        mySpam = spamImage("Sara", "u no who? sahaj", ":)")
+        directory = "/path to image folder/" # enter your directory path
+        groupName = "myGrp"
+        
+        mySpam = spamImage(groupName, directory, "u no who? sahaj", ":)")
         
         mySpam.start()
