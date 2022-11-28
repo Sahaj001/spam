@@ -1,3 +1,4 @@
 ## Automated way to send multiple files
 # currently only supported for mac
 # new commit2
+This is a readme file
